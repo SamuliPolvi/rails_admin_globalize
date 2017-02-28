@@ -40,27 +40,28 @@ module RailsAdmin
           Proc.new do
             @available_locales = (I18n.available_locales - [I18n.locale])
             @available_locales = @object.available_locales if @object.respond_to?("available_locales")
-            @already_translated_locales = []
-            @already_translated_locales = @object.translated_locales.map(&:to_s) if @object.respond_to?("translated_locales")
-            @not_yet_translated_locales = @available_locales - @already_translated_locales
 
             if request.get?
               @target_locale = params[:target_locale] || @available_locales.first || I18n.locale
+
             else
-              ::Globalize.with_locale params[:target_locale] do
-                sanitize_params_for!(:update)
+              loc = @current_locale = I18n.locale
+              I18n.locale = @target_locale = params[:target_locale]
 
-                @object.set_attributes(params[@abstract_model.param_key])
-                @authorization_adapter && @authorization_adapter.attributes_for(:update, @abstract_model).each do |name, value|
-                  @object.send("#{name}=", value)
-                end
+              sanitize_params_for!(:update)
 
-                if @object.save
-                  flash[:notice] = I18n.t("rails_admin.globalize.success")
-                  redirect_to back_or_index
-                else
-                  flash[:alert] = I18n.t("rails_admin.globalize.error")
-                end
+              @object.set_attributes(params[@abstract_model.param_key])
+              @authorization_adapter && @authorization_adapter.attributes_for(:update, @abstract_model).each do |name, value|
+                @object.send("#{name}=", value)
+              end
+
+              if @object.save
+                I18n.locale = loc
+                flash[:notice] = I18n.t("rails_admin.globalize.success")
+                redirect_to back_or_index
+              else
+                I18n.locale = loc
+                flash[:alert] = I18n.t("rails_admin.globalize.error")
               end
             end
             @object.inspect
