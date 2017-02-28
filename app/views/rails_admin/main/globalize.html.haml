@@ -25,11 +25,6 @@
   - rails_admin_fields.keys.each do |t|
     %h5 #{@object.class.human_attribute_name(t.to_sym)}:
     .row-fluid
-      .span4
-        .controls.well{ :class => "#{rails_admin_fields[t].type}_type" }
-          .original-content
-            = raw @object.send(t)
-
       .span8
         - Globalize.with_locale target_locale do
           = render :partial => "globalize_field", :locals => { :object => @object, :form => form, :field => rails_admin_fields[t] }
@@ -50,10 +45,6 @@
             - rails_admin_fields.each do |t, field|
               %h5 #{subform.object.class.human_attribute_name(t.to_sym)}:
               .row-fluid
-                .span4
-                  .controls.well{ :class => "#{rails_admin_fields[t].type}_type" }
-                    .original-content= raw obj.send(t)
-
                 .span8
                   - Globalize.with_locale target_locale do
                     = render :partial => "globalize_field", :locals => {:field => field, :object => obj, :form => subform}
@@ -75,10 +66,6 @@
                     - associated_rails_admin_fields.each do |t, field|
                       %h5 #{subsubform.object.class.human_attribute_name(t.to_sym)}:
                       .row-fluid
-                        .span4
-                          .controls.well{ :class => "#{associated_rails_admin_fields[t].type}_type" }
-                            .original-content= raw sub_obj.send(t)
-
                         .span8
                           - Globalize.with_locale target_locale do
                             = render :partial => "globalize_field", :locals => {:field => field, :object => sub_obj, :form => subsubform}
